@@ -1,5 +1,5 @@
 accelerate
 deepspeed
 einops
-fschat==0.2.9
+fschat
 peft

@@ -59,12 +59,15 @@ class Creator:
             print(line["sentence"])
             print()
 
-    def sample(self, last_token_logits, temperature):
+    def sample(self, last_token_logits, temperature, prompt):
         if temperature < 1e-4:
             token = torch.argmax(last_token_logits, dim=-1, keepdim=True)
         else:
             probs = torch.softmax(last_token_logits / temperature, dim=-1)
-            token = torch.multinomial(probs, num_samples=1)
+            try:
+                token = torch.multinomial(probs, num_samples=1)
+            except:
+                token = torch.argmax(last_token_logits, dim=-1, keepdim=True)
         return token
 
     def generate(self, prompt, past_info=None, stream=True, **kwargs):
@@ -104,7 +107,7 @@ class Creator:
 
             # sample
             last_token_logits = out.logits[:, -1]
-            token = self.sample(last_token_logits, temperature)
+            token = self.sample(last_token_logits, temperature, prompt)
             output_ids = torch.cat((output_ids, token), dim=1)
 
             # update attn & kv cache
