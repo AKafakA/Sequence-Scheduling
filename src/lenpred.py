@@ -2,18 +2,18 @@ import argparse
 
 import tqdm
 
-from . import utils
-from .generate import Creator
+from src import utils
+from src.generate import Creator
 
 
 def parse_args():
     parser = argparse.ArgumentParser()
-    parser.add_argument("--data-path", type=str, default="data/alpaca-train-10k.json")
+    parser.add_argument("--data-path", type=str, default="data/sharegpt-train-10k.json")
     parser.add_argument("--model", type=str, default="./ckpts/vicuna-7b")
 
     parser.add_argument("--seed", type=int, default=42)
     parser.add_argument("--num-data", type=int, default=None)
-    parser.add_argument("--bs", type=int, default=16)
+    parser.add_argument("--bs", type=int, default=4)
     parser.add_argument("--max-length", type=int, default=512)
     args = parser.parse_args()
     return args

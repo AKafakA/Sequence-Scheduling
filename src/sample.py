@@ -1,11 +1,11 @@
 import numpy as np
 
-from . import utils
+from src import utils
 
 if __name__ == '__main__':
     seed = 42
     utils.set_seed(seed)
-    data = utils.jload("./data/alpaca-data-conversation.json")
+    data = utils.jload("./data/sharegpt_v3_full.json")
     
     # random sample 20k
     N = 20000
@@ -17,5 +17,5 @@ if __name__ == '__main__':
     data_val = utils.jsort(data_val, key="id", integer=True)
 
     # save to json
-    utils.jdump(data_train, "./data/alpaca-train-10k.json")
-    utils.jdump(data_val, "./data/alpaca-val-10k.json")
+    utils.jdump(data_train, "./data/sharegpt-train-10k.json")
+    utils.jdump(data_val, "./data/sharegpt-val-10k.json")
