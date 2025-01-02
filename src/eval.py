@@ -8,13 +8,8 @@ from . import utils
 
 if __name__ == "__main__":
     # data
-    data = utils.EvalDataset("data/alpaca-val-10k.json")
-    data_len = utils.jload("data/alpaca-val-10k-length.json")
-    temp = [0.0, 0.3, 0.5, 0.7]
-
-    for i in range(len(data)):
-        assert data[i]["id"] == data_len[i]["id"], f"{data[i]['id']} != {data_len[i]['id']}"
-        data_len[i]["L_max"] = max([data_len[i][f"L_t{t}"] for t in temp])
+    data = utils.EvalDataset("data/sharegpt-val-10k.json")
+    data_len = []
 
     # model
     model, tokenizer = load_model(
@@ -31,6 +26,9 @@ if __name__ == "__main__":
     )
     tokenizer.pad_token = tokenizer.unk_token
     tokenizer.padding_side = "left"
+
+    for i in range(len(data)):
+        data_len[i]['L_gt'] = len(model.tokenizer(data[i]["conversations"][1]["value"]).input_ids)
 
     # LORA
     load_lora = "./ckpts/vicuna-response-length-perception-module"
@@ -75,13 +73,28 @@ if __name__ == "__main__":
         outputs = [
             tokenizer.decode(x[l_prompt:], skip_special_tokens=True) for x in output_ids
         ]
-        outputs = [int(x.strip()) for x in outputs]
-        labels_max = [x["L_max"] for x in labels]
+        
+        #outputs = [int(x.strip()) for x in outputs]
+        #labels_max = [x["L_max"] for x in labels]
+       
+        outputs_predicted = []
+        labels_max = []
 
+        assert len(outputs) == len(labels)
+        for i in range(len(outputs)):
+            try:
+                length = int(outputs[i].strip())
+                labels_max.append(labels[i]["L_gt"])
+                print(f"{i}th example:")
+                print(outputs[i])
+                print(labels[i]["L_gt"])
+            except ValueError:
+                print(outputs[i].strip())
+        
         # collect results
         all_outputs.extend(outputs)
         gt_order_outputs.extend(labels_max)
-        d_max = [abs(x - y) for x, y in zip(outputs, labels_max)]
+        d_max = [abs(x - y) for x, y in zip(outputs_predicted, labels_max)]
         diff += sum(d_max)
         acc_50t += sum([1 if x <= 50 else 0 for x in d_max])
         acc_100t += sum([1 if x <= 100 else 0 for x in d_max])

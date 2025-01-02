@@ -54,5 +54,5 @@ if __name__ == "__main__":
         out_json.append(result)
 
     # save to json
-    output_json_name = args.data_path.replace(".json", f"{args.execute_index}-length.json")
+    output_json_name = args.data_path.replace(".json", f"-{args.execute_index}-length.json")
     utils.jdump(out_json, output_json_name)

@@ -1,6 +1,6 @@
 python -m src.train_lora \
    --model_name_or_path ./ckpts/vicuna-7b \
-    --data_path ./data/alpaca-train-10k-instruct.json \
+    --data_path ./data/sharegpt-train-10k-instruct.json \
     --output_dir ./ckpts/vicuna-response-length-perception-module \
     --bf16 True \
     --tf32 True \
@@ -10,7 +10,7 @@ python -m src.train_lora \
     --save_steps 100 \
     --save_total_limit 2 \
     --logging_steps 1 \
-    --num_train_epochs 3 \
+    --num_train_epochs 4 \
     --per_device_train_batch_size 2 \
     --gradient_accumulation_steps 16 \
     --learning_rate 2e-5 \

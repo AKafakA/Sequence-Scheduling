@@ -32,6 +32,8 @@ from fastchat.train.train import (
     TrainingArguments,
     make_supervised_data_module,
 )
+import os
+os.environ["WANDB_DISABLED"] = "true"
 
 # from fastchat.train.llama_flash_attn_monkey_patch import (
 #     replace_llama_attn_with_flash_attn,
@@ -98,6 +100,7 @@ def train():
         training_args,
         lora_args,
     ) = parser.parse_args_into_dataclasses()
+    train_args.num_train_epochs=3.0
 
     model = transformers.AutoModelForCausalLM.from_pretrained(
         model_args.model_name_or_path,
