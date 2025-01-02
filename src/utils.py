@@ -85,8 +85,12 @@ def jdump(obj, f, mode="w", indent=4, default=str):
 
 def jload(f, mode="r"):
     """Load a .json file into a dictionary."""
+    file_name = f
     f = _make_r_io_base(f, mode)
-    jdict = json.load(f)
+    if file_name.endswith("json"):
+        jdict = json.load(f)
+    else:
+        jdict = [json.loads(line) for line in f]
     f.close()
     return jdict
 

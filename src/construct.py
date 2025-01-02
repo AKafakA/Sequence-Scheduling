@@ -9,7 +9,7 @@ QUERY_PROMPT = "\nDon't output the response for the above instruction. Instead, 
 def parse_args():
     parser = argparse.ArgumentParser()
     parser.add_argument("--model", type=str, default="./ckpts/vicuna-7b")
-    parser.add_argument("--data-path", type=str, default="data/sharegpt-train-10k.json")
+    parser.add_argument("--data-path", type=str, default="data/sharegpt-train-40k.json")
     args = parser.parse_args()
     return args
 

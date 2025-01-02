@@ -1,15 +1,20 @@
 import argparse
 from simpletransformers.classification import ClassificationModel, ClassificationArgs
+from transformers import AutoTokenizer
 import pandas as pd
 import logging
 from src.generate import Creator
 from src import utils
 import random
+import os
+os.environ["TOKENIZERS_PARALLELISM"] = "false"
+os.environ["WANDB_DISABLED"] = "true"
+
 
 def parse_args():
     parser = argparse.ArgumentParser()
     parser.add_argument("--regression-model-name", type=str, default="roberta-base")
-    parser.add_argument("--tokenizer", type=str, default="./ckpts/vicuna-7b")
+    parser.add_argument("--tokenizer", type=str, default="meta-llama/Llama-2-7b-hf")
     parser.add_argument("--train-data-path", type=str, default="data/sharegpt-train-10k.json")
     parser.add_argument("--val-data-path", type=str, default="data/sharegpt-val-10k.json")
     parser.add_argument("--output-dir", type=str, default="./ckpts/roberta-length-prediction")
@@ -23,7 +28,7 @@ def generate_regression_dataframe(tokenizer_model, raw_data, num_sampled=-1):
     for i in range(len(raw_data)):
         new_data = []
         new_data.append(raw_data[i]["conversations"][0]["value"])
-        len_to_predict = len(tokenizer_model.tokenizer(raw_data[i]["conversations"][1]["value"]).input_ids)
+        len_to_predict = len(tokenizer_model.tokenize(raw_data[i]["conversations"][1]["value"]))
         new_data.append(len_to_predict)
         regression_dataset.append(new_data)
     if num_sampled > 0:
@@ -38,7 +43,7 @@ if __name__ == "__main__":
     args = parse_args()
     train_data = utils.jload(args.train_data_path)
     val_data = utils.jload(args.val_data_path)
-    tokenizer_model = Creator(args.tokenizer)
+    tokenizer_model= AutoTokenizer.from_pretrained(args.tokenizer)
 
     train_data, _ = generate_regression_dataframe(tokenizer_model, train_data)
     num_eval_examples = args.num_eval_examples

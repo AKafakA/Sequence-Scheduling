@@ -5,7 +5,7 @@ from src import utils
 if __name__ == '__main__':
     seed = 42
     utils.set_seed(seed)
-    data = utils.jload("./data/sharegpt_v3_full.json")
+    data = utils.jload("./data/sharegpt_v3_full.jsonl")
     
     # random sample 20k
     N = 20000
