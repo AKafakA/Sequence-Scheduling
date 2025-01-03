@@ -7,10 +7,10 @@ python -m src.train_lora \
     --evaluation_strategy "no" \
     --lazy_preprocess True \
     --save_strategy "steps" \
-    --save_steps 100 \
+    --save_steps 500 \
     --save_total_limit 2 \
     --logging_steps 1 \
-    --num_train_epochs 4 \
+    --num_train_epochs 5 \
     --per_device_train_batch_size 2 \
     --gradient_accumulation_steps 16 \
     --learning_rate 2e-5 \

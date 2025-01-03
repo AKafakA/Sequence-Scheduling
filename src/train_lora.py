@@ -100,8 +100,7 @@ def train():
         training_args,
         lora_args,
     ) = parser.parse_args_into_dataclasses()
-    train_args.num_train_epochs=3.0
-
+    
     model = transformers.AutoModelForCausalLM.from_pretrained(
         model_args.model_name_or_path,
         cache_dir=training_args.cache_dir,
