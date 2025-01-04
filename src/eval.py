@@ -4,7 +4,7 @@ import transformers
 from fastchat.serve.inference import load_model
 from peft import PeftModel
 
-from . import utils
+from src import utils
 
 if __name__ == "__main__":
     # data
@@ -28,7 +28,7 @@ if __name__ == "__main__":
     tokenizer.padding_side = "left"
 
     for i in range(len(data)):
-        data_len[i]['L_gt'] = len(model.tokenizer(data[i]["conversations"][1]["value"]).input_ids)
+        data_len.append(len(tokenizer(data[i]["input"]).input_ids))
 
     # LORA
     load_lora = "./ckpts/vicuna-response-length-perception-module"
@@ -47,6 +47,7 @@ if __name__ == "__main__":
     all_outputs = []
     gt_order_outputs = []
     diff = 0
+    acc_10t = 0
     acc_50t = 0
     acc_100t = 0
 
@@ -78,28 +79,24 @@ if __name__ == "__main__":
         #labels_max = [x["L_max"] for x in labels]
        
         outputs_predicted = []
-        labels_max = []
-
         assert len(outputs) == len(labels)
         for i in range(len(outputs)):
             try:
-                length = int(outputs[i].strip())
-                labels_max.append(labels[i]["L_gt"])
-                print(f"{i}th example:")
-                print(outputs[i])
-                print(labels[i]["L_gt"])
+                length = max(1, int(outputs[i].strip()))
             except ValueError:
                 print(outputs[i].strip())
+                length = 1
+            outputs_predicted.append(length)
         
         # collect results
-        all_outputs.extend(outputs)
-        gt_order_outputs.extend(labels_max)
-        d_max = [abs(x - y) for x, y in zip(outputs_predicted, labels_max)]
+        d_max = [abs(x - y) for x, y in zip(outputs_predicted, labels)]
         diff += sum(d_max)
+        acc_10t += sum([1 if x <= 10 else 0 for x in d_max])
         acc_50t += sum([1 if x <= 50 else 0 for x in d_max])
         acc_100t += sum([1 if x <= 100 else 0 for x in d_max])
 
     print(f"# Samples: {cnt}")
     print(f"Error: {diff / cnt}")
+    print(f"ACC-10:{acc_10t / cnt }")
     print(f"Acc-50: {acc_50t / cnt}")
     print(f"Acc-100: {acc_100t / cnt}")
