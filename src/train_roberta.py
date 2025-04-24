@@ -44,7 +44,7 @@ if __name__ == "__main__":
     args = parse_args()
     train_data = utils.jload(args.train_data_path)
     val_data = utils.jload(args.val_data_path)
-    tokenizer_model= AutoTokenizer.from_pretrained(args.tokenizer, local_files_only=True)
+    tokenizer_model= AutoTokenizer.from_pretrained(args.tokenizer)
 
     train_data, _ = generate_regression_dataframe(tokenizer_model, train_data)
     num_eval_examples = args.num_eval_examples

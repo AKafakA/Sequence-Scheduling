@@ -3,3 +3,5 @@ deepspeed
 einops
 fschat
 peft
+simpletransformers
+fsspec==2025.3.2
