@@ -1,7 +1,7 @@
 python -m src.train_lora \
    --model_name_or_path ./ckpts/vicuna-7b \
     --data_path ./data/sharegpt-train-10k-instruct.json \
-    --output_dir ./ckpts/vicuna-response-length-perception-module \
+    --output_dir ./ckpts/vicuna-response-length-perception-module-30 \
     --bf16 True \
     --tf32 True \
     --evaluation_strategy "no" \

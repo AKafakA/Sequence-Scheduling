@@ -13,13 +13,14 @@ os.environ["WANDB_DISABLED"] = "true"
 
 def parse_args():
     parser = argparse.ArgumentParser()
-    parser.add_argument("--regression-model-name", type=str, default="roberta-base")
-    parser.add_argument("--tokenizer", type=str, default="./ckpts/vicuna-7b")
+    parser.add_argument("--regression-model-name", type=str, default="roberta-large")
+    parser.add_argument("--tokenizer", type=str, default="meta-llama/Llama-2-7b-hf")
     parser.add_argument("--train-data-path", type=str, default="data/sharegpt-train-40k.json")
     parser.add_argument("--val-data-path", type=str, default="data/sharegpt-val-10k.json")
-    parser.add_argument("--output-dir", type=str, default="./ckpts/roberta-length-prediction")
-    parser.add_argument("--epochs", type=int, default=2)
+    parser.add_argument("--output-dir", type=str, default="./ckpts/roberta-length-prediction/large")
+    parser.add_argument("--epochs", type=int, default=200)
     parser.add_argument("--num-eval-examples", type=int, default=1000)
+    parser.add_argument("--reload-model", type=bool, default=False)
     args = parser.parse_args()
     return args
 
@@ -51,28 +52,34 @@ if __name__ == "__main__":
 
     model_args = ClassificationArgs()
     model_args.num_train_epochs = args.epochs
+    model_args.train_batch_size = 32
     model_args.regression = True
     model_args.overwrite_output_dir = True
     model_args.save_steps = -1
     model_args.save_model_every_epoch = False
     model_args.save_model_every_epoch = False
     model_args.output_dir = args.output_dir
+    model_args.evaluate_during_training = True
 
     model_args.learning_rate = 1e-5
     # model_args.warmup_ratio = 0.03
-    # model_args.scheduler = "cosine_schedule_with_warmup"
+    model_args.scheduler = "cosine_schedule_with_warmup"
 
     model_args.use_early_stopping = True
-    model_args.early_stopping_delta = 0.01
-    model_args.evaluate_during_training_steps = 1000
+    model_args.early_stopping_delta = 10
+    model_args.evaluate_during_training_steps = 5000
+    model_args.early_stopping_patience = 10
 
-    model = ClassificationModel(
-    "roberta",
-    args.regression_model_name,
-    num_labels=1,
-    args=model_args)
+    if args.reload_model:
+        model = ClassificationModel("roberta", "outputs/best_model", args=model_args)
+    else:
+        model = ClassificationModel(
+                "roberta",
+                args.regression_model_name,
+                num_labels=1,
+                args=model_args)
 
-    model.train_model(train_data)
+    model.train_model(train_df=train_data, eval_df=val_data)
     result, model_outputs, wrong_predictions = model.eval_model(val_data)
     model.save_model()
     print(f"evaluation result: {result}")
