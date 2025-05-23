@@ -8,13 +8,14 @@ from src import utils
 import random
 import os
 import json
+import time
 os.environ["TOKENIZERS_PARALLELISM"] = "false"
 os.environ["WANDB_DISABLED"] = "true"
 
 
 def parse_args():
     parser = argparse.ArgumentParser()
-    parser.add_argument("--model-path", type=str, default="asdwb/roberta_base_llama_responses_length_prediction")
+    parser.add_argument("--model-path", type=str, default="asdwb/roberta_base_for_llama_2_7b_sharegpt_responses_length_prediction")
     parser.add_argument("--val-data-path", type=str, default="data/sharegpt-val-10k.json")
     parser.add_argument("--num-eval-examples", type=int, default=10000)
     parser.add_argument("--tokenizer", type=str, default="meta-llama/Llama-2-7b-hf")
@@ -43,10 +44,14 @@ if __name__ == "__main__":
     num_eval_examples = args.num_eval_examples
     tokenizer_model= AutoTokenizer.from_pretrained(args.tokenizer)
     sampled_val_data, val_data_list = generate_regression_dataframe(tokenizer_model, val_data, num_eval_examples)
-
-    model = ClassificationModel("roberta", args.model_path)
+    eval_time = time.time()
+    model_args = ClassificationArgs()
+    model_args.use_multiprocessing = False
+    model_args.use_multiprocessing_for_evaluation = False
+    model = ClassificationModel("roberta", args.model_path, args=model_args)
     result, model_outputs, wrong_predictions = model.eval_model(sampled_val_data)
-
+    eval_time = time.time() - eval_time
+    print(f"Eval_time:{eval_time}")
     d_max = []
     assert len(val_data_list) == len(model_outputs)
     for i in range(len(val_data_list)):
